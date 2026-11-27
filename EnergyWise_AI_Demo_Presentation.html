@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EnergyWise AI Universe — Executive Demo Presentation</title>
+  <style>
+    :root {
+      --cosmos: #030712;
+      --nebula: #071921;
+      --card-bg: rgba(15, 23, 42, 0.78);
+      --card-border: rgba(52, 211, 153, 0.22);
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --emerald: #10b981;
+      --cyan: #22d3ee;
+      --amber: #fbbf24;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background:
+        radial-gradient(circle at 18% 20%, rgba(16, 185, 129, 0.18), transparent 42%),
+        radial-gradient(circle at 82% 78%, rgba(34, 211, 238, 0.15), transparent 45%),
+        radial-gradient(circle at 50% 50%, #071521 0%, #030712 100%);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 12% 24%, rgba(255,255,255,0.45), transparent),
+        radial-gradient(1px 1px at 34% 72%, rgba(110,231,183,0.45), transparent),
+        radial-gradient(1.5px 1.5px at 68% 18%, rgba(34,211,238,0.5), transparent),
+        radial-gradient(1px 1px at 84% 55%, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 48% 88%, rgba(110,231,183,0.35), transparent),
+        radial-gradient(1.5px 1.5px at 91% 14%, rgba(255,255,255,0.4), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .deck-header, .stage, .controls { position: relative; z-index: 1; }
+    .deck-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 28px;
+      background: rgba(3, 7, 18, 0.8);
+      backdrop-filter: blur(10px);
+      color: var(--muted);
+      font-size: 12.5px;
+      border-bottom: 1px solid rgba(52, 211, 153, 0.18);
+    }
+    .deck-header strong {
+      color: #fff;
+      background: linear-gradient(90deg, #6ee7b7, #22d3ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 32px;
+      overflow: hidden;
+    }
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1180px;
+      height: 100%;
+      max-height: 660px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: 22px;
+      padding: 36px 44px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      overflow-y: auto;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .slide.active { display: flex; }
+    .slide-hero {
+      background:
+        radial-gradient(circle at 85% 22%, rgba(34, 211, 238, 0.16), transparent 45%),
+        radial-gradient(circle at 15% 80%, rgba(16, 185, 129, 0.22), transparent 50%),
+        rgba(7, 20, 30, 0.88);
+    }
+    .pill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      background: rgba(16, 185, 129, 0.14);
+      color: #6ee7b7;
+      border: 1px solid rgba(52, 211, 153, 0.35);
+    }
+    h1 {
+      font-size: 42px;
+      line-height: 1.14;
+      margin: 16px 0 12px;
+      background: linear-gradient(120deg, #ffffff 25%, #6ee7b7 75%, #22d3ee 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    h2 { font-size: 26px; margin: 10px 0 6px; color: #ffffff; }
+    .subtitle { font-size: 14.5px; color: #cbd5e1; margin: 0 0 18px; max-width: 840px; }
+    .slide-hero .subtitle { font-size: 16.5px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .box {
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 15px;
+      padding: 16px 18px;
+      background: rgba(15, 23, 42, 0.65);
+    }
+    .box-glow {
+      background: linear-gradient(145deg, rgba(6, 78, 59, 0.45), rgba(15, 23, 42, 0.78));
+      border-color: rgba(52, 211, 153, 0.4);
+      box-shadow: 0 0 24px rgba(16, 185, 129, 0.12);
+    }
+    .box h3 { margin: 0 0 8px; font-size: 15px; color: #6ee7b7; }
+    .box p, .box li { font-size: 13px; color: #cbd5e1; line-height: 1.55; margin: 4px 0; }
+    .box ul, .box ol { padding-left: 18px; margin: 6px 0 0; }
+    .kpi {
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .kpi .label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+    .kpi .val { font-size: 26px; font-weight: 800; color: #fff; margin: 4px 0; }
+    .kpi .sub { font-size: 11.5px; color: var(--muted); }
+    .kpi-accent {
+      background: linear-gradient(135deg, #059669, #0891b2);
+      border: 1px solid rgba(110, 231, 183, 0.5);
+      box-shadow: 0 0 28px rgba(16, 185, 129, 0.28);
+    }
+    .kpi-accent .label, .kpi-accent .val, .kpi-accent .sub { color: #ffffff; }
+    .orbit-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: rgba(2, 6, 23, 0.55);
+      border: 1px solid rgba(52, 211, 153, 0.22);
+      padding: 12px 16px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+    .orbit-node {
+      flex: 1;
+      text-align: center;
+      padding: 9px 10px;
+      border-radius: 10px;
+      background: rgba(30, 41, 59, 0.75);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      color: #e2e8f0;
+    }
+    .orbit-node.core-usp {
+      background: linear-gradient(135deg, #059669, #0d9488);
+      color: #fff;
+      border-color: #6ee7b7;
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.35);
+    }
+    .orbit-node.horizon {
+      background: rgba(15, 23, 42, 0.45);
+      color: #94a3b8;
+      border-style: dashed;
+    }
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid rgba(148, 163, 184, 0.16);
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 10px 20px;
+      background: rgba(3, 7, 18, 0.88);
+      border-top: 1px solid rgba(52, 211, 153, 0.18);
+    }
+    .nav-btn {
+      background: rgba(30, 41, 59, 0.85);
+      color: #f8fafc;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      padding: 7px 16px;
+      border-radius: 9px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .nav-btn:hover { background: rgba(16, 185, 129, 0.22); }
+    .dots { display: flex; gap: 8px; }
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #334155;
+      cursor: pointer;
+    }
+    .dot.active { background: #10b981; box-shadow: 0 0 8px #10b981; transform: scale(1.2); }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(148, 163, 184, 0.18); color: #e2e8f0; }
+    th { color: #6ee7b7; font-size: 11.5px; }
+    code { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; padding: 1px 6px; border-radius: 4px; font-size: 11.5px; }
+  </style>
+</head>
+<body>
+  <header class="deck-header">
+    <div><strong>EnergyWise AI Universe</strong> • Option B PoC + Intelligence Loop USP</div>
+    <div id="slide-counter">Slide 1 of 6</div>
+  </header>
+
+  <main class="stage">
+    <!-- SLIDE 1: HERO -->
+    <section class="slide slide-hero active">
+      <div>
+        <span class="pill">AI Friday Season 3 • Welcome to the EnergyWise AI Universe</span>
+        <h1>EnergyWise AI Universe<br/>From Raw Meter Signals to Committed Savings</h1>
+        <p class="subtitle">
+          An interconnected ecosystem of deterministic energy engines, MCP tool servers, privacy vaults,
+          and grounded AI—orbiting around one customer promise: <strong>Discover → Decide → Simulate → Commit</strong>.
+        </p>
+      </div>
+      <div class="grid-3">
+        <div class="box box-glow">
+          <h3>⚡ Deterministic Core</h3>
+          <p>Authoritative Python engines compute every kWh, INR bill, CO₂ delta, and forecast—zero LLM math.</p>
+        </div>
+        <div class="box box-glow">
+          <h3>🛰️ MCP + Grounding Shield</h3>
+          <p>FastMCP tool constellation + PII vault isolation + number-level grounding + Rules Mode fallback.</p>
+        </div>
+        <div class="box box-glow">
+          <h3>🌍 Actionable Customer Orbit</h3>
+          <p>Consumers move from passive charts to committed actions in <em>My Energy Action Plan</em>.</p>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Next.js 15 + FastAPI + FastMCP + SQLite + PII Vault</span>
+        <span>Use ← / → or Space to explore the Universe</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: WHY THIS UNIVERSE EXISTS -->
+    <section class="slide">
+      <div>
+        <span class="pill">1. Problem &amp; Value Proposition</span>
+        <h2>Bridging the Gap Between Smart Meters and Real Action</h2>
+        <p class="subtitle">Smart meters generate billions of readings, yet consumers only see a monthly bill—and ungrounded chatbots risk hallucinated savings.</p>
+      </div>
+      <div class="grid-2">
+        <div class="box">
+          <h3>The Disconnect Today</h3>
+          <ul>
+            <li><strong>Peak Blindness:</strong> Consumers miss how <code>18:00–22:00</code> peak rates (<code>₹10.20/kWh</code>) inflate bills.</li>
+            <li><strong>Static Dashboards:</strong> Charts show history without ranking what to change or showing before/after impact.</li>
+            <li><strong>AI Hallucination &amp; PII Risk:</strong> Raw LLM prompting invents ₹ savings and leaks customer identifiers.</li>
+          </ul>
+        </div>
+        <div class="box box-glow">
+          <h3>The EnergyWise AI Universe Promise</h3>
+          <p style="font-weight: 600; color: #ffffff;">
+            "EnergyWise doesn't just tell consumers how much electricity they use. It explains where savings
+            opportunities exist, recommends what to change, demonstrates the projected impact, and helps
+            consumers commit to an actionable plan."
+          </p>
+          <ul>
+            <li><strong>Honest Provenance:</strong> Clearly separates <em>Measured</em>, <em>Estimated</em>, and <em>Projected</em>.</li>
+            <li><strong>Verifiable AI:</strong> Every number in chat is checked against deterministic tool outputs.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>TAR-ILL-001 Time-of-Day Tariff • 100 Synthetic Customers × 90 Days</span>
+        <span>Slide 2 / 6</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: ARCHITECTURE CONSTELLATION -->
+    <section class="slide">
+      <div>
+        <span class="pill">2. Option B Architecture Constellation</span>
+        <h2>Six Connected Layers Working in Harmony</h2>
+        <p class="subtitle">Every layer has a strict boundary—UI and API orchestrate, engines compute, MCP connects, and AI explains.</p>
+      </div>
+      <div class="grid-3">
+        <div class="box">
+          <h3>1. Experience Layer</h3>
+          <ul>
+            <li><strong>Next.js 15 + Tailwind</strong> (port <code>3000</code>)</li>
+            <li><strong>FastAPI</strong> (port <code>8000</code>)</li>
+            <li>CSV upload (<code>ts</code>/<code>kwh</code> &amp; aliases) with raw preservation.</li>
+            <li>Dashboard &amp; simulator call engines directly.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>2. Engine &amp; MCP Orbit</h3>
+          <ul>
+            <li><strong>Deterministic Engines:</strong> <code>TAR-ILL-001</code> billing, recommendations, what-if simulator, forecast, CO₂.</li>
+            <li><strong>FastMCP Stdio:</strong> <code>engines_server</code>, <code>kb_server</code>, <code>smart_meter_server</code>.</li>
+            <li><strong>Action Plan Store:</strong> Persisted per <code>cust_ref</code> in SQLite.</li>
+          </ul>
+        </div>
+        <div class="box box-glow">
+          <h3>3. Trust &amp; Grounding Shield</h3>
+          <ul>
+            <li><strong>PII Vault:</strong> <code>data/pii_vault.db</code> isolated from AI &amp; MCP; downstream uses <code>cust_ref</code>.</li>
+            <li><strong><code>privacy.scan()</code>:</strong> Redacts/blocks PII before any gateway call.</li>
+            <li><strong><code>grounding.check()</code>:</strong> Number-level check + automatic <strong>Rules Mode</strong> fallback.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>No custom model training • Synthetic data only • Full audit trail in energywise.db</span>
+        <span>Slide 3 / 6</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: OPTION 2 ENTERPRISE TARGET ARCHITECTURE DIAGRAM -->
+    <section class="slide">
+      <div>
+        <span class="pill">3. Option 2 — Planned Enterprise Target-State Architecture</span>
+        <h2>Three-Tier Platform &amp; Dual-Pattern MCP Utility Integration</h2>
+        <p class="subtitle">Planned target-state evolution (not delivered in PoC): OAuth2/Consent, PII Vault, and governed Pattern 1 / Pattern 2 MCP utility integration.</p>
+      </div>
+      <div style="background: rgba(2, 6, 23, 0.55); border: 1px solid rgba(52, 211, 153, 0.25); border-radius: 16px; padding: 14px;">
+        <svg viewBox="0 0 1060 390" style="width: 100%; height: auto; display: block; font-family: Inter, Segoe UI, sans-serif;">
+          <defs>
+            <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399" />
+            </marker>
+            <marker id="arrCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#22d3ee" />
+            </marker>
+          </defs>
+
+          <!-- Tier 1: Presentation -->
+          <rect x="16" y="14" width="230" height="360" rx="14" fill="#0f172a" stroke="#334155" stroke-width="1.5" />
+          <text x="32" y="40" fill="#6ee7b7" font-size="12" font-weight="700">TIER 1: PRESENTATION</text>
+          <rect x="32" y="64" width="198" height="82" rx="10" fill="#1e293b" stroke="#34d399" stroke-opacity="0.45" />
+          <text x="131" y="94" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">React / Next.js SPA</text>
+          <text x="131" y="114" text-anchor="middle" fill="#cbd5e1" font-size="11">Customer &amp; Admin Portals</text>
+          <text x="131" y="132" text-anchor="middle" fill="#94a3b8" font-size="10">(CDN / Static Hosting)</text>
+
+          <rect x="32" y="176" width="198" height="76" rx="10" fill="#1e293b" stroke="#22d3ee" stroke-opacity="0.45" />
+          <text x="131" y="206" text-anchor="middle" fill="#fff" font-size="12.5" font-weight="700">Enterprise IdP</text>
+          <text x="131" y="225" text-anchor="middle" fill="#cbd5e1" font-size="11">OAuth2 / OIDC + Consent</text>
+
+          <rect x="32" y="280" width="198" height="72" rx="10" fill="#064e3b" fill-opacity="0.45" stroke="#34d399" stroke-opacity="0.45" />
+          <text x="131" y="310" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">Trust Boundary 1</text>
+          <text x="131" y="330" text-anchor="middle" fill="#cbd5e1" font-size="10.5">HTTPS + OIDC + WAF</text>
+
+          <!-- Tier 2: Application & Integration -->
+          <rect x="276" y="14" width="468" height="360" rx="14" fill="#0f172a" stroke="#10b981" stroke-opacity="0.45" stroke-width="1.5" />
+          <text x="294" y="40" fill="#6ee7b7" font-size="12" font-weight="700">TIER 2: APPLICATION, AI &amp; INTEGRATION (CONTAINERIZED)</text>
+
+          <rect x="296" y="60" width="428" height="54" rx="10" fill="#1e293b" stroke="#475569" />
+          <text x="510" y="84" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">API Gateway / FastAPI BFF &amp; Consent Middleware</text>
+          <text x="510" y="102" text-anchor="middle" fill="#94a3b8" font-size="10.5">Enforces RBAC, consent scope &amp; request validation</text>
+
+          <rect x="296" y="132" width="206" height="92" rx="10" fill="#064e3b" fill-opacity="0.55" stroke="#34d399" />
+          <text x="399" y="158" text-anchor="middle" fill="#6ee7b7" font-size="12.5" font-weight="700">Deterministic Engines</text>
+          <text x="399" y="178" text-anchor="middle" fill="#e2e8f0" font-size="11">Analytics • ToD Billing</text>
+          <text x="399" y="195" text-anchor="middle" fill="#e2e8f0" font-size="11">Recommendations • Simulator</text>
+          <text x="399" y="212" text-anchor="middle" fill="#94a3b8" font-size="10">(100% Authoritative Math)</text>
+
+          <rect x="518" y="132" width="206" height="92" rx="10" fill="#1e293b" stroke="#22d3ee" />
+          <text x="621" y="158" text-anchor="middle" fill="#22d3ee" font-size="12.5" font-weight="700">AI Orchestrator &amp; Gateway</text>
+          <text x="621" y="178" text-anchor="middle" fill="#e2e8f0" font-size="11">RAG + privacy.scan()</text>
+          <text x="621" y="195" text-anchor="middle" fill="#e2e8f0" font-size="11">grounding.check() + Fallback</text>
+          <text x="621" y="212" text-anchor="middle" fill="#94a3b8" font-size="10">(Never Unauthorised Tools)</text>
+
+          <rect x="296" y="244" width="428" height="110" rx="10" fill="#082f49" fill-opacity="0.7" stroke="#22d3ee" />
+          <text x="510" y="268" text-anchor="middle" fill="#22d3ee" font-size="12.5" font-weight="700">MCP Client &amp; Policy Proxy (Dual-Pattern Utility Layer)</text>
+          <text x="510" y="288" text-anchor="middle" fill="#e2e8f0" font-size="11">Allowlisting • Schema Validation • Rate Limits • mTLS • Audit</text>
+          <rect x="314" y="302" width="186" height="38" rx="7" fill="#0f172a" stroke="#34d399" stroke-opacity="0.6" />
+          <text x="407" y="325" text-anchor="middle" fill="#6ee7b7" font-size="10.5" font-weight="600">Pattern 1: Native Provider MCP</text>
+          <rect x="520" y="302" width="186" height="38" rx="7" fill="#0f172a" stroke="#22d3ee" stroke-opacity="0.6" />
+          <text x="613" y="325" text-anchor="middle" fill="#67e8f9" font-size="10.5" font-weight="600">Pattern 2: Managed Adapter → MCP</text>
+
+          <!-- Tier 3 & External Utility Zone -->
+          <rect x="774" y="14" width="270" height="214" rx="14" fill="#0f172a" stroke="#334155" stroke-width="1.5" />
+          <text x="790" y="40" fill="#6ee7b7" font-size="12" font-weight="700">TIER 3: DATA &amp; VAULT TIER</text>
+          <rect x="790" y="56" width="238" height="44" rx="8" fill="#1e293b" stroke="#475569" />
+          <text x="909" y="82" text-anchor="middle" fill="#fff" font-size="11.5" font-weight="600">PostgreSQL + TimescaleDB</text>
+          <rect x="790" y="110" width="238" height="44" rx="8" fill="#064e3b" fill-opacity="0.55" stroke="#34d399" />
+          <text x="909" y="136" text-anchor="middle" fill="#6ee7b7" font-size="11.5" font-weight="700">Encrypted PII &amp; Consent Vault</text>
+          <rect x="790" y="164" width="238" height="44" rx="8" fill="#1e293b" stroke="#475569" />
+          <text x="909" y="190" text-anchor="middle" fill="#fff" font-size="11.5" font-weight="600">Managed Vector DB &amp; Secrets</text>
+
+          <rect x="774" y="244" width="270" height="130" rx="14" fill="#1e1b4b" fill-opacity="0.55" stroke="#818cf8" stroke-width="1.5" />
+          <text x="790" y="268" fill="#a5b4fc" font-size="11.5" font-weight="700">EXTERNAL UTILITY PROVIDERS</text>
+          <rect x="790" y="282" width="238" height="36" rx="8" fill="#0f172a" stroke="#34d399" stroke-opacity="0.6" />
+          <text x="909" y="304" text-anchor="middle" fill="#e2e8f0" font-size="11">Provider A: Hosted MCP Server</text>
+          <rect x="790" y="326" width="238" height="36" rx="8" fill="#0f172a" stroke="#22d3ee" stroke-opacity="0.6" />
+          <text x="909" y="348" text-anchor="middle" fill="#e2e8f0" font-size="11">Provider B: MDM / CIS / Tariff APIs</text>
+
+          <!-- Connectors -->
+          <line x1="230" y1="95" x2="294" y2="95" stroke="#34d399" stroke-width="2" marker-end="url(#arr)" />
+          <line x1="502" y1="178" x2="516" y2="178" stroke="#22d3ee" stroke-width="2" marker-end="url(#arrCyan)" />
+          <line x1="399" y1="224" x2="399" y2="242" stroke="#34d399" stroke-width="2" marker-end="url(#arr)" />
+          <line x1="724" y1="132" x2="788" y2="132" stroke="#34d399" stroke-width="2" marker-end="url(#arr)" />
+          <line x1="724" y1="310" x2="788" y2="310" stroke="#22d3ee" stroke-width="2" marker-end="url(#arrCyan)" />
+        </svg>
+      </div>
+      <div class="slide-footer">
+        <span>Option 1 PoC uses CSV Upload only • Option 2 MCP Utility Integration is a Planned Target-State Capability</span>
+        <span>Slide 4 / 6</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: VERIFIED NUMBERS -->
+    <section class="slide">
+      <div>
+        <span class="pill">4. Verified Numerical Integrity (Customer C001)</span>
+        <h2>Zero-Discrepancy Math Across Every Screen</h2>
+        <p class="subtitle">Scenario: Shift Peak → Night = <strong>20%</strong> + AC Runtime Trim = <strong>1.0 hr/day</strong> (30-day window on <code>C001</code>).</p>
+      </div>
+      <div class="grid-4">
+        <div class="kpi">
+          <div class="label">Measured Baseline (30d)</div>
+          <div class="val">478.26 kWh</div>
+          <div class="sub">₹3,926.82 • 35.0% Peak</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Simulated Scenario</div>
+          <div class="val" style="color: #6ee7b7;">442.26 kWh</div>
+          <div class="sub">₹3,419.16 (Projected)</div>
+        </div>
+        <div class="kpi kpi-accent">
+          <div class="label">Projected Savings</div>
+          <div class="val">-₹507.66</div>
+          <div class="sub">-36.0 kWh • ₹0.00 discrepancy</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Projected CO₂ Delta</div>
+          <div class="val">-29.52 kg</div>
+          <div class="sub">-36.0 kWh × 0.82 kg/kWh</div>
+        </div>
+      </div>
+      <div class="box" style="margin-top: 14px;">
+        <h3>Data Provenance Contract</h3>
+        <table>
+          <thead>
+            <tr><th>Category</th><th>Origin in EnergyWise Universe</th><th>Presentation Standard</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Measured</strong></td><td><code>C001</code> hourly smart-meter readings (<code>energywise.db</code>)</td><td><code>478.26 kWh</code>, <code>₹3,926.82</code>, <code>99.9%</code> quality score</td></tr>
+            <tr><td><strong>Estimated</strong></td><td>Declared appliance loads &amp; 1.2 kW AC draw</td><td>Labelled <em>Estimate — not sub-metered telemetry</em></td></tr>
+            <tr><td><strong>Projected</strong></td><td>Deterministic <code>simulate_scenario</code> &amp; <code>forecast</code></td><td>Labelled <em>Projected</em> (never achieved or verified)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="slide-footer">
+        <span>Verified by automated unittest + TestClient suite (5/5 passing in 0.183s)</span>
+        <span>Slide 5 / 6</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: LIVE DEMO & HORIZON -->
+    <section class="slide">
+      <div>
+        <span class="pill">5. Live Demo &amp; Enterprise Horizon</span>
+        <h2>5-Minute Live Judging Journey</h2>
+        <p class="subtitle">Repeatable end-to-end demonstration on <code>http://localhost:3000</code> (Backend <code>:8000</code>).</p>
+      </div>
+      <div class="grid-2">
+        <div class="box">
+          <h3>Live Demo Steps</h3>
+          <ol>
+            <li><strong>Dashboard (<code>C001</code>):</strong> <code>478.26 kWh</code>, <code>₹3,926.82</code>, shaded <code>18–22h</code> Peak.</li>
+            <li><strong>Discover &amp; Decide:</strong> Evidence-backed cards + effort badges.</li>
+            <li><strong>Simulate:</strong> <code>20%</code> Peak Shift + <code>1h</code> AC Trim → <code>-₹507.66</code>, <code>-29.52 kg CO₂</code>.</li>
+            <li><strong>Commit (USP):</strong> <code>+ Add to Action Plan</code>; toggle <code>Planned</code> → <code>Accepted</code> → <code>Completed</code>.</li>
+            <li><strong>Grounded AI &amp; Rules Mode:</strong> Ask <em>"Why is my bill high?"</em> &amp; refund question.</li>
+            <li><strong>CSV Upload (<code>C098</code>) &amp; Admin Tab:</strong> Upload 3-row CSV; inspect segments, 6 KB docs &amp; audit log.</li>
+          </ol>
+        </div>
+        <div class="box box-glow">
+          <h3>Beyond the PoC Horizon</h3>
+          <ul>
+            <li><strong>5. Verify Savings:</strong> Post-intervention baseline comparison with 80% completeness, weekday/weekend &amp; ToD checks, and weather/occupancy attribution.</li>
+            <li><strong>Option 2 Enterprise MCP:</strong> Utility-hosted MCP servers / managed adapters, OAuth2 + consent (<code>FR-15</code>), SME tariffs (<code>FR-14</code>).</li>
+            <li><strong>Live LLM Gateway:</strong> Enable after separate compliance audit closes model-slug verification &amp; TLS remediation.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Backend: <code>uvicorn api.main:app --port 8000</code> • Frontend: <code>cd web &amp;&amp; npm run dev</code></span>
+        <span>Slide 6 / 6</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="controls">
+    <button class="nav-btn" onclick="move(-1)">← Previous</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn" onclick="move(1)">Next →</button>
+  </footer>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const dotsEl = document.getElementById("dots");
+    const counterEl = document.getElementById("slide-counter");
+    let idx = 0;
+
+    function render() {
+      slides.forEach((s, i) => s.classList.toggle("active", i === idx));
+      counterEl.textContent = `Slide ${idx + 1} of ${slides.length}`;
+      dotsEl.innerHTML = slides
+        .map((_, i) => `<div class="dot ${i === idx ? "active" : ""}" onclick="go(${i})"></div>`)
+        .join("");
+    }
+    function move(delta) { idx = Math.max(0, Math.min(slides.length - 1, idx + delta)); render(); }
+    function go(i) { idx = i; render(); }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " ") move(1);
+      if (e.key === "ArrowLeft") move(-1);
+    });
+    render();
+  </script>
+</body>
+</html>
