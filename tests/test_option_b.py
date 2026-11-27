@@ -97,6 +97,38 @@ class OptionBTests(unittest.TestCase):
         self.assertEqual(len(client.get("/admin/documents").json()), 6)
         self.assertGreaterEqual(len(client.get("/admin/audit").json()), 1)
 
+    def test_action_plan_commit_and_isolation(self) -> None:
+        client = TestClient(app)
+        created = client.post(
+            "/action-plan/C001",
+            json={
+                "rec_id": "REC-SHIFT-PEAK",
+                "title": "Shift flexible load to Off-Peak",
+                "rationale": "Peak ₹10.20 vs Off-Peak ₹6.00 (estimate)",
+                "projected_inr_saving": 175.56,
+                "projected_kwh_saving": 0.0,
+                "status": "Planned",
+            },
+        )
+        self.assertEqual(created.status_code, 200)
+        item_id = created.json()["id"]
+
+        items = client.get("/action-plan/C001").json()
+        self.assertTrue(any(i["id"] == item_id for i in items))
+
+        # Cross-customer isolation check
+        forbidden = client.patch(f"/action-plan/C002/{item_id}", json={"status": "Accepted"})
+        self.assertEqual(forbidden.status_code, 404)
+
+        # Valid status transitions
+        acc = client.patch(f"/action-plan/C001/{item_id}", json={"status": "Accepted"})
+        self.assertEqual(acc.status_code, 200)
+        self.assertEqual(acc.json()["status"], "Accepted")
+
+        comp = client.patch(f"/action-plan/C001/{item_id}", json={"status": "Completed"})
+        self.assertEqual(comp.status_code, 200)
+        self.assertEqual(comp.json()["status"], "Completed")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EnergyWise AI — Executive Demo Presentation</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --emerald: #059669;
+      --emerald-light: #d1fae5;
+      --teal: #0d9488;
+      --amber: #d97706;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .deck-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 24px;
+      background: #0b1220;
+      color: #cbd5e1;
+      font-size: 12.5px;
+      border-bottom: 1px solid #1e293b;
+    }
+    .deck-header strong { color: #fff; }
+    .stage {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 32px;
+      overflow: hidden;
+    }
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1160px;
+      height: 100%;
+      max-height: 660px;
+      background: var(--card);
+      border-radius: 20px;
+      padding: 36px 44px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      overflow-y: auto;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .slide.active { display: flex; }
+    .slide-hero {
+      background: linear-gradient(135deg, #064e3b 0%, #0f172a 65%);
+      color: #ffffff;
+    }
+    .pill {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      background: rgba(16, 185, 129, 0.18);
+      color: #6ee7b7;
+      border: 1px solid rgba(110, 231, 183, 0.35);
+    }
+    .pill-dark {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+    .pill-amber {
+      background: #fffbeb;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+    h1 { font-size: 40px; line-height: 1.15; margin: 16px 0 12px; }
+    h2 { font-size: 26px; margin: 0 0 6px; color: #0f172a; }
+    .subtitle { font-size: 15px; color: var(--muted); margin: 0 0 20px; }
+    .slide-hero .subtitle { color: #cbd5e1; font-size: 17px; max-width: 780px; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      background: #f8fafc;
+    }
+    .box-emerald {
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+    .box h3 { margin: 0 0 8px; font-size: 15px; color: #0f172a; }
+    .box p, .box li { font-size: 13px; color: #334155; line-height: 1.5; margin: 4px 0; }
+    .box ul { padding-left: 18px; margin: 6px 0 0; }
+    .kpi {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .kpi .label { font-size: 11.5px; color: var(--muted); font-weight: 600; }
+    .kpi .val { font-size: 26px; font-weight: 800; color: #0f172a; margin: 4px 0; }
+    .kpi .sub { font-size: 11.5px; color: var(--muted); }
+    .kpi-accent { background: linear-gradient(135deg, #059669, #0f766e); color: #fff; border: none; }
+    .kpi-accent .label, .kpi-accent .val, .kpi-accent .sub { color: #fff; }
+    .loop-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: #f1f5f9;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+    .loop-step {
+      flex: 1;
+      text-align: center;
+      padding: 8px 10px;
+      border-radius: 9px;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+    }
+    .loop-step.active-usp {
+      background: #059669;
+      color: #fff;
+      border-color: #059669;
+    }
+    .loop-step.roadmap {
+      background: #f8fafc;
+      color: #64748b;
+      border-style: dashed;
+    }
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-size: 11.5px;
+      color: var(--muted);
+    }
+    .slide-hero .slide-footer { border-top-color: rgba(255,255,255,0.15); color: #94a3b8; }
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 10px 20px;
+      background: #0b1220;
+      border-top: 1px solid #1e293b;
+    }
+    .nav-btn {
+      background: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .nav-btn:hover { background: #334155; }
+    .dots { display: flex; gap: 7px; }
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #334155;
+      cursor: pointer;
+    }
+    .dot.active { background: #10b981; transform: scale(1.2); }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-size: 11.5px; }
+    code { background: #e2e8f0; padding: 1px 5px; border-radius: 4px; font-size: 11.5px; }
+  </style>
+</head>
+<body>
+  <header class="deck-header">
+    <div><strong>EnergyWise AI</strong> • Option B PoC + Intelligence Loop USP</div>
+    <div id="slide-counter">Slide 1 of 6</div>
+  </header>
+
+  <main class="stage">
+    <!-- SLIDE 1: TITLE -->
+    <section class="slide slide-hero active">
+      <div>
+        <span class="pill">AI Friday Season 3 • Option B PoC Demonstration</span>
+        <h1>EnergyWise AI<br/>From Smart-Meter Data to Committed Savings</h1>
+        <p class="subtitle">
+          A deterministic, privacy-preserving energy advisory platform powered by MCP tool-calling,
+          number-level grounding, and the <strong>EnergyWise Intelligence Loop (Discover → Decide → Simulate → Commit)</strong>.
+        </p>
+      </div>
+      <div class="grid-3" style="margin: 10px 0;">
+        <div class="box" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.16); color:#fff;">
+          <h3 style="color:#6ee7b7;">100% Deterministic Math</h3>
+          <p style="color:#e2e8f0;">Python engines compute every kWh, INR bill, CO₂ delta, and forecast—never the LLM.</p>
+        </div>
+        <div class="box" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.16); color:#fff;">
+          <h3 style="color:#6ee7b7;">MCP + Number Grounding</h3>
+          <p style="color:#e2e8f0;">FastMCP tool calling + number-level verification + automatic Rules Mode fallback.</p>
+        </div>
+        <div class="box" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.16); color:#fff;">
+          <h3 style="color:#6ee7b7;">Actionable Customer USP</h3>
+          <p style="color:#e2e8f0;">Consumers commit to prioritised actions in <em>My Energy Action Plan</em>.</p>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Next.js 15 + FastAPI + FastMCP + SQLite + PII Vault</span>
+        <span>Use ← / → keys to navigate</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: PROBLEM & USP -->
+    <section class="slide">
+      <div>
+        <span class="pill pill-dark">1. Business Problem & USP</span>
+        <h2>Why Smart-Meter Data Alone Doesn't Change Behaviour</h2>
+        <p class="subtitle">Utilities collect hourly kWh data, yet customers only see a total monthly bill—and raw LLM chatbots risk hallucinated savings and privacy leaks.</p>
+      </div>
+      <div class="grid-2">
+        <div class="box">
+          <h3>Customer & Utility Challenges</h3>
+          <ul>
+            <li><strong>Opaque Bills:</strong> Customers don't see how <code>18:00–22:00</code> peak rates (<code>₹10.20/kWh</code>) drive their bill.</li>
+            <li><strong>No Actionable Path:</strong> Static charts don't rank what to change or show before/after savings.</li>
+            <li><strong>AI Trust & Privacy Risk:</strong> Letting an LLM compute ₹ savings causes hallucinations and PII exposure.</li>
+          </ul>
+        </div>
+        <div class="box box-emerald">
+          <h3>EnergyWise USP Proposition</h3>
+          <p style="font-weight: 600; color: #064e3b;">
+            "EnergyWise doesn't just tell consumers how much electricity they use. It explains where savings
+            opportunities exist, recommends what to change, demonstrates the projected impact, and helps
+            consumers commit to an actionable plan."
+          </p>
+          <ul>
+            <li><strong>Clear Evidence:</strong> Separates <em>Measured</em>, <em>Estimated</em>, and <em>Projected</em> values.</li>
+            <li><strong>Zero Hallucination:</strong> Every number in AI replies is verified against engine tool outputs.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>TAR-ILL-001 Time-of-Day Tariff • Synthetic 100-Customer × 90-Day Dataset</span>
+        <span>Slide 2 / 6</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 3: ARCHITECTURE -->
+    <section class="slide">
+      <div>
+        <span class="pill pill-dark">2. Option B Architecture</span>
+        <h2>Deterministic Engines + Tool-Calling Agent Over MCP</h2>
+        <p class="subtitle">Clean separation of UI, API, deterministic calculation engines, MCP tool servers, privacy vault, and grounded AI.</p>
+      </div>
+      <div class="grid-3">
+        <div class="box">
+          <h3>Presentation & API</h3>
+          <ul>
+            <li><strong>Next.js 15 + Tailwind</strong> (port <code>3000</code>)</li>
+            <li><strong>FastAPI</strong> (port <code>8000</code>)</li>
+            <li>Dashboard & simulator call deterministic engines directly (zero LLM latency).</li>
+            <li>CSV upload (<code>ts</code>/<code>kwh</code> &amp; aliases) with raw preservation.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>Engines &amp; FastMCP</h3>
+          <ul>
+            <li><strong>Deterministic Engines:</strong> <code>TAR-ILL-001</code> billing, recommendations, what-if simulator, forecast, CO₂ (<code>0.82 kg/kWh</code>).</li>
+            <li><strong>FastMCP Stdio Servers:</strong> <code>engines_server</code>, <code>kb_server</code>, <code>smart_meter_server</code>.</li>
+            <li><strong>My Energy Action Plan:</strong> Persisted per <code>cust_ref</code> in SQLite.</li>
+          </ul>
+        </div>
+        <div class="box box-emerald">
+          <h3>Privacy, Grounding &amp; Fallback</h3>
+          <ul>
+            <li><strong>PII Vault:</strong> <code>data/pii_vault.db</code> isolated from AI &amp; MCP servers; downstream uses <code>cust_ref</code> (<code>C001</code>…).</li>
+            <li><strong><code>privacy.scan()</code>:</strong> Redacts/blocks PII before LLM calls.</li>
+            <li><strong><code>grounding.check()</code>:</strong> Number-level check; automatic <strong>Rules Mode</strong> fallback if gateway is offline.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>No custom AI training • Synthetic data only • Audit logged in data/energywise.db</span>
+        <span>Slide 3 / 6</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 4: HIGH-LEVEL FEATURES & USP LOOP -->
+    <section class="slide">
+      <div>
+        <span class="pill pill-dark">3. High-Level Feature Showcase</span>
+        <h2>EnergyWise Intelligence Loop: Discover → Decide → Simulate → Commit</h2>
+        <p class="subtitle">One cohesive customer journey supported by a Utility Admin &amp; Audit governance view.</p>
+      </div>
+      <div class="loop-bar">
+        <div class="loop-step">1. Discover<br/><span style="font-weight:400;font-size:11px;">Peak &amp; Baseload Evidence</span></div>
+        <span>→</span>
+        <div class="loop-step">2. Decide<br/><span style="font-weight:400;font-size:11px;">Action Cards + Effort</span></div>
+        <span>→</span>
+        <div class="loop-step">3. Simulate<br/><span style="font-weight:400;font-size:11px;">Projected ₹, kWh &amp; CO₂</span></div>
+        <span>→</span>
+        <div class="loop-step active-usp">4. Commit (USP)<br/><span style="font-weight:400;font-size:11px;">My Energy Action Plan</span></div>
+        <span>→</span>
+        <div class="loop-step roadmap">5. Verify Savings<br/><span style="font-weight:400;font-size:11px;">Planned Future Roadmap</span></div>
+      </div>
+      <div class="grid-2">
+        <div class="box">
+          <h3>Customer Capabilities</h3>
+          <ul>
+            <li><strong>Dashboard &amp; 24h Curve:</strong> Measured kWh, <code>99.9%</code> quality score, shaded <code>18:00–22:00</code> Peak band.</li>
+            <li><strong>Opportunity &amp; Action Cards:</strong> Evidence, why it matters, qualitative effort (Low/Medium), assumptions, <code>+ Add to Action Plan</code>.</li>
+            <li><strong>What-If Simulator:</strong> Peak→Night shift %, AC runtime trim, standby cut (0–30%), appliance dropdowns.</li>
+            <li><strong>My Energy Action Plan:</strong> Track status (<code>Planned</code> / <code>Accepted</code> / <code>Completed</code>).</li>
+            <li><strong>Grounded AI Chat:</strong> Quick prompts, free text, honest unsupported-question limits.</li>
+          </ul>
+        </div>
+        <div class="box">
+          <h3>Utility Admin &amp; Governance</h3>
+          <ul>
+            <li><strong>DR Segment Aggregates:</strong> 100 synthetic meters across High-Rise, EV Residential, and Villa segments.</li>
+            <li><strong>Approved KB Governance:</strong> 6 curated Markdown docs (<code>KB-TAR-001</code>–<code>KB-POLICY-006</code>) with version &amp; approval metadata.</li>
+            <li><strong>AI &amp; Grounding Audit Log:</strong> Tracks <code>cust_ref</code>, mode (<code>rules_mode</code> / LLM), tool calls, and grounding results with zero PII.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>All projected savings explicitly labelled as Projected (never achieved or verified)</span>
+        <span>Slide 4 / 6</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 5: VERIFIED DEMO NUMBERS -->
+    <section class="slide">
+      <div>
+        <span class="pill pill-dark">4. Verified Numerical Integrity (Customer C001)</span>
+        <h2>Reconciled Math Across Dashboard, Simulator &amp; AI Chat</h2>
+        <p class="subtitle">Scenario: Shift Peak → Night = <strong>20%</strong> + AC Runtime Trim = <strong>1.0 hr/day</strong> (30-day window on <code>C001</code>).</p>
+      </div>
+      <div class="grid-4">
+        <div class="kpi">
+          <div class="label">Measured Baseline (30d)</div>
+          <div class="val">478.26 kWh</div>
+          <div class="sub">₹3,926.82 • 35.0% Peak</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Simulated Scenario</div>
+          <div class="val" style="color: var(--emerald);">442.26 kWh</div>
+          <div class="sub">₹3,419.16 (Projected)</div>
+        </div>
+        <div class="kpi kpi-accent">
+          <div class="label">Projected Savings</div>
+          <div class="val">-₹507.66</div>
+          <div class="sub">-36.0 kWh • ₹0.00 discrepancy</div>
+        </div>
+        <div class="kpi">
+          <div class="label">Projected CO₂ Delta</div>
+          <div class="val">-29.52 kg</div>
+          <div class="sub">-36.0 kWh × 0.82 kg/kWh</div>
+        </div>
+      </div>
+      <div class="box" style="margin-top: 14px;">
+        <h3>Strict Provenance Distinction</h3>
+        <table>
+          <thead>
+            <tr><th>Category</th><th>Source in EnergyWise AI</th><th>How Presented</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>Measured</strong></td><td><code>C001</code> hourly smart-meter readings (<code>energywise.db</code>)</td><td><code>478.26 kWh</code>, <code>₹3,926.82</code>, <code>99.9%</code> quality score</td></tr>
+            <tr><td><strong>Estimated</strong></td><td>Declared appliance allocations &amp; 1.2 kW AC draw</td><td>Labelled <em>Estimate — not sub-metered telemetry</em></td></tr>
+            <tr><td><strong>Projected</strong></td><td>Deterministic <code>simulate_scenario</code> &amp; <code>forecast</code></td><td>Labelled <em>Projected</em> (never achieved or verified)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="slide-footer">
+        <span>Verified by automated unittest + TestClient suite (5/5 passing in 0.183s)</span>
+        <span>Slide 5 / 6</span>
+      </div>
+    </section>
+
+    <!-- SLIDE 6: LIVE DEMO FLOW & ROADMAP -->
+    <section class="slide">
+      <div>
+        <span class="pill pill-dark">5. Live Demo Walkthrough &amp; Roadmap</span>
+        <h2>5-Minute Judging Demo Flow</h2>
+        <p class="subtitle">Repeatable end-to-end demonstration on <code>http://localhost:3000</code> (Backend <code>:8000</code>).</p>
+      </div>
+      <div class="grid-2">
+        <div class="box">
+          <h3>Live Demo Sequence</h3>
+          <ol style="padding-left: 18px; font-size: 13px; color: #334155; line-height: 1.65; margin: 4px 0;">
+            <li><strong>Open Dashboard (<code>C001</code>):</strong> Show <code>478.26 kWh</code>, <code>₹3,926.82</code>, and shaded <code>18–22h</code> peak.</li>
+            <li><strong>Discover &amp; Decide:</strong> Review evidence-backed cards + effort badges.</li>
+            <li><strong>Simulate:</strong> Set <code>20%</code> Peak Shift + <code>1h</code> AC Trim → <code>-₹507.66</code>, <code>-29.52 kg CO₂</code>.</li>
+            <li><strong>Commit (USP):</strong> Click <code>+ Add to Action Plan</code>; toggle <code>Planned</code> → <code>Accepted</code> → <code>Completed</code>.</li>
+            <li><strong>AI Chat &amp; Fallback:</strong> Ask <em>"Why is my bill high?"</em> &amp; unsupported refund question → <code>grounded=true</code> in Rules Mode.</li>
+            <li><strong>CSV Upload (<code>C098</code>) &amp; Admin Tab:</strong> Upload 3-row CSV; inspect aggregates, 6 KB docs &amp; audit log.</li>
+          </ol>
+        </div>
+        <div class="box box-emerald">
+          <h3>Future Roadmap (Post-PoC)</h3>
+          <ul>
+            <li><strong>5. Verify Savings:</strong> Compare post-intervention readings against locked baselines with 80% completeness, weekday/weekend &amp; ToD comparability, and weather/occupancy attribution.</li>
+            <li><strong>Enterprise Option 2:</strong> Native utility MCP servers / managed adapters, OAuth2 + customer consent (<code>FR-15</code>), and SME demand tariffs (<code>FR-14</code>).</li>
+            <li><strong>Live LLM Gateway:</strong> Enable after separate compliance audit closes model-slug verification &amp; TLS remediation.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Backend: <code>uvicorn api.main:app --port 8000</code> • Frontend: <code>cd web &amp;&amp; npm run dev</code></span>
+        <span>Slide 6 / 6</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="controls">
+    <button class="nav-btn" onclick="move(-1)">← Previous</button>
+    <div class="dots" id="dots"></div>
+    <button class="nav-btn" onclick="move(1)">Next →</button>
+  </footer>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const dotsEl = document.getElementById("dots");
+    const counterEl = document.getElementById("slide-counter");
+    let idx = 0;
+
+    function render() {
+      slides.forEach((s, i) => s.classList.toggle("active", i === idx));
+      counterEl.textContent = `Slide ${idx + 1} of ${slides.length}`;
+      dotsEl.innerHTML = slides
+        .map((_, i) => `<div class="dot ${i === idx ? "active" : ""}" onclick="go(${i})"></div>`)
+        .join("");
+    }
+    function move(delta) { idx = Math.max(0, Math.min(slides.length - 1, idx + delta)); render(); }
+    function go(i) { idx = i; render(); }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " ") move(1);
+      if (e.key === "ArrowLeft") move(-1);
+    });
+    render();
+  </script>
+</body>
+</html>

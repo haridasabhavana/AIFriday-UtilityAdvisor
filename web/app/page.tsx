@@ -2,7 +2,25 @@
 
 import React, { useEffect, useState } from "react";
 import { LoadProfileChart } from "./components";
-import { apiGet, apiPost } from "./lib";
+import { apiGet, apiPatch, apiPost } from "./lib";
+
+const REC_META: Record<string, { why: string; effort: string; assumption: string }> = {
+  "REC-SHIFT-PEAK": {
+    why: "Peak electricity (18:00–22:00) costs ₹10.20/kWh vs. ₹6.00/kWh overnight under TAR-ILL-001.",
+    effort: "Low Effort",
+    assumption: "Assumes shifting 25% of flexible peak load; appliance allocation is an estimate.",
+  },
+  "REC-AC-TRIM": {
+    why: "Evening cooling drives peak-hour kWh; trimming 1 hr/day cuts both kWh and peak charges.",
+    effort: "Medium Effort",
+    assumption: "Assumes ~1.2 kW compressor draw (estimate, not sub-metered telemetry).",
+  },
+  "REC-STANDBY": {
+    why: "Idle electronics draw continuous overnight baseload even when rooms are unoccupied.",
+    effort: "Low Effort",
+    assumption: "Assumes 20% reduction in overnight baseload via smart power strips.",
+  },
+};
 
 export default function HomePage() {
   const [tab, setTab] = useState<"customer" | "admin">("customer");
@@ -18,9 +36,10 @@ export default function HomePage() {
   const [standbyPct, setStandbyPct] = useState(0);
   const [appShift, setAppShift] = useState<Record<string, string>>({});
 
-  // Chat state
+  // Chat & Action Plan state
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<any[]>([]);
+  const [actionPlan, setActionPlan] = useState<any[]>([]);
   const [adminData, setAdminData] = useState<any>(null);
 
   useEffect(() => {
@@ -40,7 +59,26 @@ export default function HomePage() {
       setStandbyPct(0);
       setAppShift({});
     }).catch(() => {});
+    apiGet<any[]>(`/action-plan/${custRef}`).then(setActionPlan).catch(() => setActionPlan([]));
   }, [custRef]);
+
+  async function addToPlan(rec: any) {
+    const meta = REC_META[rec.id] || { why: rec.pattern, effort: "Medium Effort", assumption: "Estimated benefit" };
+    const created = await apiPost<any>(`/action-plan/${custRef}`, {
+      rec_id: rec.id,
+      title: rec.action,
+      rationale: `${meta.why} (${meta.assumption})`,
+      projected_inr_saving: rec.inr_saving,
+      projected_kwh_saving: rec.kwh_saving,
+      status: "Planned",
+    });
+    setActionPlan((prev) => (prev.some((p) => p.id === created.id) ? prev : [created, ...prev]));
+  }
+
+  async function updatePlanStatus(itemId: string, status: "Planned" | "Accepted" | "Completed") {
+    const updated = await apiPatch<any>(`/action-plan/${custRef}/${itemId}`, { status });
+    setActionPlan((prev) => prev.map((p) => (p.id === itemId ? updated : p)));
+  }
 
   function buildActions(nextShiftPct = shiftPct, nextAc = acHours, nextStandby = standbyPct, nextApp = appShift) {
     const actions: any[] = [];
@@ -132,11 +170,29 @@ export default function HomePage() {
 
       {tab === "customer" && dash && (
         <>
+          <section className="bg-white px-4 py-3 rounded-2xl border border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-bold text-slate-700">EnergyWise Intelligence Loop:</span>
+              <span className="px-2 py-0.5 rounded-full bg-slate-100 font-semibold">1. Discover</span>
+              <span className="text-slate-400">→</span>
+              <span className="px-2 py-0.5 rounded-full bg-slate-100 font-semibold">2. Decide</span>
+              <span className="text-slate-400">→</span>
+              <span className="px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 border border-teal-200 font-semibold">3. Simulate (Projected)</span>
+              <span className="text-slate-400">→</span>
+              <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-semibold">4. Commit ({actionPlan.length} in Plan)</span>
+            </div>
+            <span className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200">
+              5. Verify Savings — Planned Future Capability (Roadmap)
+            </span>
+          </section>
+
           <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white p-4 rounded-2xl border border-slate-200">
               <div className="text-xs text-slate-500">Consumption ({dash.summary.day_count}d)</div>
               <div className="text-2xl font-bold mt-1">{simResult ? simResult.simulation.scenario.kwh : dash.summary.total_kwh} kWh</div>
-              <div className="text-[11px] text-slate-500">Quality score: {dash.summary.quality_score}%</div>
+              <div className="text-[11px] text-slate-500">
+                {simResult ? "Simulated (Projected)" : `Measured • Quality: ${dash.summary.quality_score}%`}
+              </div>
             </div>
             <div className="bg-white p-4 rounded-2xl border border-slate-200">
               <div className="text-xs text-slate-500">Estimated Cost</div>
@@ -146,12 +202,14 @@ export default function HomePage() {
             <div className="bg-white p-4 rounded-2xl border border-slate-200">
               <div className="text-xs text-slate-500">Peak Share (18–22h)</div>
               <div className="text-2xl font-bold mt-1">{dash.summary.peak_share_pct}%</div>
-              <div className="text-[11px] text-slate-500">Baseload: {dash.summary.baseload_kw} kW</div>
+              <div className="text-[11px] text-slate-500">Measured Baseload: {dash.summary.baseload_kw} kW</div>
             </div>
             <div className="bg-emerald-700 text-white p-4 rounded-2xl">
-              <div className="text-xs text-emerald-100">Scenario Delta (Cost / CO₂)</div>
+              <div className="text-xs text-emerald-100">Projected Savings (Simulated)</div>
               <div className="text-2xl font-bold mt-1">{simResult ? `₹${simResult.simulation.delta.cost_inr}` : "₹0"}</div>
-              <div className="text-[11px] text-emerald-100">{simResult ? `${simResult.simulation.delta.co2_kg} kg CO₂` : "Adjust controls below"}</div>
+              <div className="text-[11px] text-emerald-100">
+                {simResult ? `${simResult.simulation.delta.kwh} kWh • ${simResult.simulation.delta.co2_kg} kg CO₂ (Projected)` : "Adjust controls below"}
+              </div>
             </div>
           </section>
 
@@ -195,21 +253,89 @@ export default function HomePage() {
                     </div>
                   ))}
                 </div>
+                {simResult && (
+                  <div className="text-[11px] text-slate-600 bg-teal-50 border border-teal-200 rounded-xl p-2.5">
+                    <strong>Projected Simulation Assumptions:</strong> {(simResult.simulation.assumptions || []).join(" ")}
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-sm font-semibold">4. Commit — My Energy Action Plan ({custRef})</h2>
+                  <span className="text-[11px] text-slate-500">Saved per customer</span>
+                </div>
+                {actionPlan.length === 0 ? (
+                  <p className="text-xs text-slate-500">No actions committed yet. Click <strong>+ Add to Plan</strong> on a recommended action card.</p>
+                ) : (
+                  <div className="space-y-2.5">
+                    {actionPlan.map((item) => (
+                      <div key={item.id} className="p-3 rounded-xl border border-slate-200 bg-slate-50 text-xs space-y-1.5">
+                        <div className="flex flex-wrap justify-between gap-2 font-semibold">
+                          <span>{item.title}</span>
+                          <span className="text-emerald-700">Projected: ₹{item.projected_inr_saving}/mo</span>
+                        </div>
+                        <div className="text-[11px] text-slate-600">{item.rationale}</div>
+                        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                          <span className="text-[11px] text-slate-500 mr-1">Status:</span>
+                          {(["Planned", "Accepted", "Completed"] as const).map((st) => (
+                            <button
+                              key={st}
+                              onClick={() => updatePlanStatus(item.id, st)}
+                              className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${
+                                item.status === st
+                                  ? "bg-emerald-600 text-white border-emerald-600"
+                                  : "bg-white text-slate-600 border-slate-200"
+                              }`}
+                            >
+                              {st}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="text-[11px] text-slate-500 border-t pt-2">
+                  <strong>5. Verify Savings (Roadmap):</strong> Post-intervention baseline comparison and causal attribution are planned future capabilities, not yet implemented.
+                </div>
               </div>
             </div>
 
             <div className="lg:col-span-5 space-y-6">
               <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
-                <h2 className="text-sm font-semibold">Recommendation Candidates</h2>
-                {dash.recommendations.map((r: any) => (
-                  <div key={r.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
-                    <div className="flex justify-between font-semibold">
-                      <span>{r.action}</span>
-                      <span className="text-emerald-700">₹{r.inr_saving}/mo</span>
+                <h2 className="text-sm font-semibold">1–2. Discover & Decide — Opportunities & Actions</h2>
+                {dash.recommendations.map((r: any) => {
+                  const meta = REC_META[r.id] || { why: r.pattern, effort: "Medium Effort", assumption: "Estimated benefit" };
+                  const inPlan = actionPlan.some((p) => p.rec_id === r.id);
+                  return (
+                    <div key={r.id} className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1.5">
+                      <div className="flex justify-between gap-2 font-semibold">
+                        <span>{r.action}</span>
+                        <span className="text-emerald-700 shrink-0">Projected: ₹{r.inr_saving}/mo</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[10px] font-semibold">Measured Evidence</span>
+                        <span className="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 text-[10px] font-semibold">{meta.effort}</span>
+                        <span className="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 text-[10px] font-semibold">Confidence: {r.confidence}</span>
+                      </div>
+                      <div className="text-slate-700"><strong>Evidence:</strong> {r.pattern}</div>
+                      <div className="text-slate-600"><strong>Why it matters:</strong> {meta.why}</div>
+                      <div className="text-[11px] text-slate-500"><strong>Assumptions:</strong> {meta.assumption}</div>
+                      <div className="pt-1">
+                        <button
+                          disabled={inPlan}
+                          onClick={() => addToPlan(r)}
+                          className={`px-3 py-1 rounded-lg text-[11px] font-semibold ${
+                            inPlan ? "bg-slate-200 text-slate-500" : "bg-emerald-600 text-white hover:bg-emerald-700"
+                          }`}
+                        >
+                          {inPlan ? "✓ In Action Plan" : "+ Add to Action Plan"}
+                        </button>
+                      </div>
                     </div>
-                    <div className="text-slate-500">{r.pattern} • Confidence: {r.confidence}</div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               <div className="bg-white p-5 rounded-2xl border border-slate-200">

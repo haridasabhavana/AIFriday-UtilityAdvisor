@@ -1,8 +1,9 @@
 """FastAPI REST API for EnergyWise AI Option B PoC (port 8000)."""
 
 import sqlite3
+import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,6 +38,38 @@ class FeedbackBody(BaseModel):
     cust_ref: str
     rec_id: str
     rating: str
+
+
+class ActionPlanCreateBody(BaseModel):
+    rec_id: str
+    title: str
+    rationale: str
+    projected_inr_saving: float
+    projected_kwh_saving: float = 0.0
+    status: Literal["Planned", "Accepted", "Completed"] = "Planned"
+
+
+class ActionPlanStatusBody(BaseModel):
+    status: Literal["Planned", "Accepted", "Completed"]
+
+
+def _ensure_action_plan_table() -> None:
+    with sqlite3.connect(str(ENERGYWISE_DB)) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS action_plan_items (
+                id TEXT PRIMARY KEY,
+                cust_ref TEXT NOT NULL,
+                rec_id TEXT NOT NULL,
+                title TEXT NOT NULL,
+                rationale TEXT NOT NULL,
+                projected_inr_saving REAL NOT NULL,
+                projected_kwh_saving REAL NOT NULL,
+                status TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+            """
+        )
 
 
 @app.get("/health")
@@ -155,3 +188,71 @@ def admin_audit() -> List[Dict[str, Any]]:
             "SELECT id, cust_ref, action, grounding_json, created_at FROM audit ORDER BY id DESC LIMIT 25"
         ).fetchall()
         return [dict(r) for r in rows]
+
+
+@app.get("/action-plan/{cust_ref}")
+def get_action_plan(cust_ref: str) -> List[Dict[str, Any]]:
+    _ensure_action_plan_table()
+    with sqlite3.connect(str(ENERGYWISE_DB)) as conn:
+        conn.row_factory = sqlite3.Row
+        rows = conn.execute(
+            "SELECT id, cust_ref, rec_id, title, rationale, projected_inr_saving, projected_kwh_saving, status, updated_at "
+            "FROM action_plan_items WHERE cust_ref = ? ORDER BY updated_at DESC",
+            (cust_ref,),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+@app.post("/action-plan/{cust_ref}")
+def add_action_plan_item(cust_ref: str, body: ActionPlanCreateBody) -> Dict[str, Any]:
+    _ensure_action_plan_table()
+    now_iso = datetime.now(timezone.utc).isoformat()
+    with sqlite3.connect(str(ENERGYWISE_DB)) as conn:
+        conn.row_factory = sqlite3.Row
+        existing = conn.execute(
+            "SELECT * FROM action_plan_items WHERE cust_ref = ? AND rec_id = ?",
+            (cust_ref, body.rec_id),
+        ).fetchone()
+        if existing:
+            return dict(existing)
+        item_id = f"plan_{uuid.uuid4().hex[:8]}"
+        conn.execute(
+            """
+            INSERT INTO action_plan_items (
+                id, cust_ref, rec_id, title, rationale, projected_inr_saving, projected_kwh_saving, status, updated_at
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                item_id,
+                cust_ref,
+                body.rec_id,
+                body.title,
+                body.rationale,
+                body.projected_inr_saving,
+                body.projected_kwh_saving,
+                body.status,
+                now_iso,
+            ),
+        )
+        row = conn.execute("SELECT * FROM action_plan_items WHERE id = ?", (item_id,)).fetchone()
+        return dict(row)
+
+
+@app.patch("/action-plan/{cust_ref}/{item_id}")
+def update_action_plan_status(cust_ref: str, item_id: str, body: ActionPlanStatusBody) -> Dict[str, Any]:
+    _ensure_action_plan_table()
+    now_iso = datetime.now(timezone.utc).isoformat()
+    with sqlite3.connect(str(ENERGYWISE_DB)) as conn:
+        conn.row_factory = sqlite3.Row
+        row = conn.execute(
+            "SELECT id FROM action_plan_items WHERE id = ? AND cust_ref = ?",
+            (item_id, cust_ref),
+        ).fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Action plan item not found for customer.")
+        conn.execute(
+            "UPDATE action_plan_items SET status = ?, updated_at = ? WHERE id = ? AND cust_ref = ?",
+            (body.status, now_iso, item_id, cust_ref),
+        )
+        updated = conn.execute("SELECT * FROM action_plan_items WHERE id = ?", (item_id,)).fetchone()
+        return dict(updated)
