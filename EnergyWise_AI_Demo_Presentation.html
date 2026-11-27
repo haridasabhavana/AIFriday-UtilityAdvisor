@@ -337,45 +337,95 @@
       </div>
     </section>
 
-    <!-- SLIDE 4: INTELLIGENCE LOOP -->
+    <!-- SLIDE 4: OPTION 2 ENTERPRISE TARGET ARCHITECTURE DIAGRAM -->
     <section class="slide">
       <div>
-        <span class="pill">3. The Core Orbit: EnergyWise Intelligence Loop</span>
-        <h2>Discover → Decide → Simulate → Commit</h2>
-        <p class="subtitle">A complete customer optimisation journey paired with a Utility Admin &amp; Governance observatory.</p>
+        <span class="pill">3. Option 2 — Planned Enterprise Target-State Architecture</span>
+        <h2>Three-Tier Platform &amp; Dual-Pattern MCP Utility Integration</h2>
+        <p class="subtitle">Planned target-state evolution (not delivered in PoC): OAuth2/Consent, PII Vault, and governed Pattern 1 / Pattern 2 MCP utility integration.</p>
       </div>
-      <div class="orbit-bar">
-        <div class="orbit-node">1. Discover<br/><span style="font-weight:400;font-size:11px;color:#94a3b8;">Peak &amp; Baseload Evidence</span></div>
-        <span style="color:#6ee7b7;">→</span>
-        <div class="orbit-node">2. Decide<br/><span style="font-weight:400;font-size:11px;color:#94a3b8;">Action Cards + Effort</span></div>
-        <span style="color:#6ee7b7;">→</span>
-        <div class="orbit-node">3. Simulate<br/><span style="font-weight:400;font-size:11px;color:#94a3b8;">Projected ₹, kWh &amp; CO₂</span></div>
-        <span style="color:#6ee7b7;">→</span>
-        <div class="orbit-node core-usp">4. Commit (USP)<br/><span style="font-weight:400;font-size:11px;color:#d1fae5;">My Energy Action Plan</span></div>
-        <span style="color:#64748b;">→</span>
-        <div class="orbit-node horizon">5. Verify Savings<br/><span style="font-weight:400;font-size:11px;">Future Horizon</span></div>
-      </div>
-      <div class="grid-2">
-        <div class="box">
-          <h3>Customer Universe</h3>
-          <ul>
-            <li><strong>Measured Dashboard:</strong> 24h load profile, shaded <code>18–22h</code> Peak band, quality score.</li>
-            <li><strong>Opportunity &amp; Action Cards:</strong> Evidence, rationale, qualitative effort, assumptions, <code>+ Add to Action Plan</code>.</li>
-            <li><strong>What-If Simulator:</strong> Peak→Night shift %, AC runtime trim, standby cut, appliance dropdowns.</li>
-            <li><strong>My Energy Action Plan:</strong> Track status (<code>Planned</code> / <code>Accepted</code> / <code>Completed</code>).</li>
-          </ul>
-        </div>
-        <div class="box">
-          <h3>Utility &amp; Governance Observatory</h3>
-          <ul>
-            <li><strong>DR Segment Aggregates:</strong> 100 synthetic meters across High-Rise, EV Residential, and Villas.</li>
-            <li><strong>Approved KB Governance:</strong> 6 curated Markdown docs (<code>KB-TAR-001</code>–<code>KB-POLICY-006</code>).</li>
-            <li><strong>AI &amp; Grounding Audit Log:</strong> Pseudonymised trace of mode, tool calls, and grounding status.</li>
-          </ul>
-        </div>
+      <div style="background: rgba(2, 6, 23, 0.55); border: 1px solid rgba(52, 211, 153, 0.25); border-radius: 16px; padding: 14px;">
+        <svg viewBox="0 0 1060 390" style="width: 100%; height: auto; display: block; font-family: Inter, Segoe UI, sans-serif;">
+          <defs>
+            <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#34d399" />
+            </marker>
+            <marker id="arrCyan" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 1 L 10 5 L 0 9 z" fill="#22d3ee" />
+            </marker>
+          </defs>
+
+          <!-- Tier 1: Presentation -->
+          <rect x="16" y="14" width="230" height="360" rx="14" fill="#0f172a" stroke="#334155" stroke-width="1.5" />
+          <text x="32" y="40" fill="#6ee7b7" font-size="12" font-weight="700">TIER 1: PRESENTATION</text>
+          <rect x="32" y="64" width="198" height="82" rx="10" fill="#1e293b" stroke="#34d399" stroke-opacity="0.45" />
+          <text x="131" y="94" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">React / Next.js SPA</text>
+          <text x="131" y="114" text-anchor="middle" fill="#cbd5e1" font-size="11">Customer &amp; Admin Portals</text>
+          <text x="131" y="132" text-anchor="middle" fill="#94a3b8" font-size="10">(CDN / Static Hosting)</text>
+
+          <rect x="32" y="176" width="198" height="76" rx="10" fill="#1e293b" stroke="#22d3ee" stroke-opacity="0.45" />
+          <text x="131" y="206" text-anchor="middle" fill="#fff" font-size="12.5" font-weight="700">Enterprise IdP</text>
+          <text x="131" y="225" text-anchor="middle" fill="#cbd5e1" font-size="11">OAuth2 / OIDC + Consent</text>
+
+          <rect x="32" y="280" width="198" height="72" rx="10" fill="#064e3b" fill-opacity="0.45" stroke="#34d399" stroke-opacity="0.45" />
+          <text x="131" y="310" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">Trust Boundary 1</text>
+          <text x="131" y="330" text-anchor="middle" fill="#cbd5e1" font-size="10.5">HTTPS + OIDC + WAF</text>
+
+          <!-- Tier 2: Application & Integration -->
+          <rect x="276" y="14" width="468" height="360" rx="14" fill="#0f172a" stroke="#10b981" stroke-opacity="0.45" stroke-width="1.5" />
+          <text x="294" y="40" fill="#6ee7b7" font-size="12" font-weight="700">TIER 2: APPLICATION, AI &amp; INTEGRATION (CONTAINERIZED)</text>
+
+          <rect x="296" y="60" width="428" height="54" rx="10" fill="#1e293b" stroke="#475569" />
+          <text x="510" y="84" text-anchor="middle" fill="#fff" font-size="13" font-weight="700">API Gateway / FastAPI BFF &amp; Consent Middleware</text>
+          <text x="510" y="102" text-anchor="middle" fill="#94a3b8" font-size="10.5">Enforces RBAC, consent scope &amp; request validation</text>
+
+          <rect x="296" y="132" width="206" height="92" rx="10" fill="#064e3b" fill-opacity="0.55" stroke="#34d399" />
+          <text x="399" y="158" text-anchor="middle" fill="#6ee7b7" font-size="12.5" font-weight="700">Deterministic Engines</text>
+          <text x="399" y="178" text-anchor="middle" fill="#e2e8f0" font-size="11">Analytics • ToD Billing</text>
+          <text x="399" y="195" text-anchor="middle" fill="#e2e8f0" font-size="11">Recommendations • Simulator</text>
+          <text x="399" y="212" text-anchor="middle" fill="#94a3b8" font-size="10">(100% Authoritative Math)</text>
+
+          <rect x="518" y="132" width="206" height="92" rx="10" fill="#1e293b" stroke="#22d3ee" />
+          <text x="621" y="158" text-anchor="middle" fill="#22d3ee" font-size="12.5" font-weight="700">AI Orchestrator &amp; Gateway</text>
+          <text x="621" y="178" text-anchor="middle" fill="#e2e8f0" font-size="11">RAG + privacy.scan()</text>
+          <text x="621" y="195" text-anchor="middle" fill="#e2e8f0" font-size="11">grounding.check() + Fallback</text>
+          <text x="621" y="212" text-anchor="middle" fill="#94a3b8" font-size="10">(Never Unauthorised Tools)</text>
+
+          <rect x="296" y="244" width="428" height="110" rx="10" fill="#082f49" fill-opacity="0.7" stroke="#22d3ee" />
+          <text x="510" y="268" text-anchor="middle" fill="#22d3ee" font-size="12.5" font-weight="700">MCP Client &amp; Policy Proxy (Dual-Pattern Utility Layer)</text>
+          <text x="510" y="288" text-anchor="middle" fill="#e2e8f0" font-size="11">Allowlisting • Schema Validation • Rate Limits • mTLS • Audit</text>
+          <rect x="314" y="302" width="186" height="38" rx="7" fill="#0f172a" stroke="#34d399" stroke-opacity="0.6" />
+          <text x="407" y="325" text-anchor="middle" fill="#6ee7b7" font-size="10.5" font-weight="600">Pattern 1: Native Provider MCP</text>
+          <rect x="520" y="302" width="186" height="38" rx="7" fill="#0f172a" stroke="#22d3ee" stroke-opacity="0.6" />
+          <text x="613" y="325" text-anchor="middle" fill="#67e8f9" font-size="10.5" font-weight="600">Pattern 2: Managed Adapter → MCP</text>
+
+          <!-- Tier 3 & External Utility Zone -->
+          <rect x="774" y="14" width="270" height="214" rx="14" fill="#0f172a" stroke="#334155" stroke-width="1.5" />
+          <text x="790" y="40" fill="#6ee7b7" font-size="12" font-weight="700">TIER 3: DATA &amp; VAULT TIER</text>
+          <rect x="790" y="56" width="238" height="44" rx="8" fill="#1e293b" stroke="#475569" />
+          <text x="909" y="82" text-anchor="middle" fill="#fff" font-size="11.5" font-weight="600">PostgreSQL + TimescaleDB</text>
+          <rect x="790" y="110" width="238" height="44" rx="8" fill="#064e3b" fill-opacity="0.55" stroke="#34d399" />
+          <text x="909" y="136" text-anchor="middle" fill="#6ee7b7" font-size="11.5" font-weight="700">Encrypted PII &amp; Consent Vault</text>
+          <rect x="790" y="164" width="238" height="44" rx="8" fill="#1e293b" stroke="#475569" />
+          <text x="909" y="190" text-anchor="middle" fill="#fff" font-size="11.5" font-weight="600">Managed Vector DB &amp; Secrets</text>
+
+          <rect x="774" y="244" width="270" height="130" rx="14" fill="#1e1b4b" fill-opacity="0.55" stroke="#818cf8" stroke-width="1.5" />
+          <text x="790" y="268" fill="#a5b4fc" font-size="11.5" font-weight="700">EXTERNAL UTILITY PROVIDERS</text>
+          <rect x="790" y="282" width="238" height="36" rx="8" fill="#0f172a" stroke="#34d399" stroke-opacity="0.6" />
+          <text x="909" y="304" text-anchor="middle" fill="#e2e8f0" font-size="11">Provider A: Hosted MCP Server</text>
+          <rect x="790" y="326" width="238" height="36" rx="8" fill="#0f172a" stroke="#22d3ee" stroke-opacity="0.6" />
+          <text x="909" y="348" text-anchor="middle" fill="#e2e8f0" font-size="11">Provider B: MDM / CIS / Tariff APIs</text>
+
+          <!-- Connectors -->
+          <line x1="230" y1="95" x2="294" y2="95" stroke="#34d399" stroke-width="2" marker-end="url(#arr)" />
+          <line x1="502" y1="178" x2="516" y2="178" stroke="#22d3ee" stroke-width="2" marker-end="url(#arrCyan)" />
+          <line x1="399" y1="224" x2="399" y2="242" stroke="#34d399" stroke-width="2" marker-end="url(#arr)" />
+          <line x1="724" y1="132" x2="788" y2="132" stroke="#34d399" stroke-width="2" marker-end="url(#arr)" />
+          <line x1="724" y1="310" x2="788" y2="310" stroke="#22d3ee" stroke-width="2" marker-end="url(#arrCyan)" />
+        </svg>
       </div>
       <div class="slide-footer">
-        <span>All simulated &amp; plan savings explicitly labelled Projected (never achieved or verified)</span>
+        <span>Option 1 PoC uses CSV Upload only • Option 2 MCP Utility Integration is a Planned Target-State Capability</span>
         <span>Slide 4 / 6</span>
       </div>
     </section>
